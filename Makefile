@@ -1,4 +1,4 @@
-MAIN = main.py
+MAIN = pac-man.py
 
 UI_DIR = pacman/ui
 BACK_END_DIR = pacman
