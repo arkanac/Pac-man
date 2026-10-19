@@ -19,3 +19,8 @@ class Game:
         if coord in self.level.pacgums:
             self.level.pacgums.discard(coord)
             self.score += self.rules.point_per_pacgum
+        if coord in self.level.super_pacgums:
+            self.level.super_pacgums.discard(coord)
+            self.score += self.rules.point_per_super_pacgum
+        if len(self.level.super_pacgums) == 0 and len(self.level.pacgums) == 0:
+            pass

@@ -26,6 +26,9 @@ class Player:
         """Set the direction of pac-man"""
         self.next_direction = direction
 
+    def position(self) -> tuple[int, int]:
+        return (self.x, self.y)
+
     def move(self) -> None:
         """Check if the wanted direction is possible and move to it"""
         if self.next_direction is not None:
