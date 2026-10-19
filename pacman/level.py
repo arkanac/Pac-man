@@ -19,5 +19,6 @@ class Level:
         while grid[y][x] == 15:
             x += 1
         self.player_spawn = (x, y)
+        self.pacgums.discard((x, y))
         self.ghost_spawns: list[tuple[int, int]] = [(0, 0), (w-1, 0),
                                                     (0, h-1), (w-1, h-1)]
