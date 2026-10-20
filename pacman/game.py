@@ -14,6 +14,7 @@ class Game:
         self.rules = rules
 
     def turn(self) -> None:
+        """Move the player one step and eat what is on its cell."""
         self.player.move()
         coord = self.player.position()
         if coord in self.level.pacgums:
@@ -24,6 +25,7 @@ class Game:
             self.score += self.rules.point_per_super_pacgum
 
     def win(self) -> bool:
+        """Return True when no pacgum nor super-pacgum is left."""
         p = len(self.level.pacgums)
         sp = len(self.level.super_pacgums)
         return p == 0 and sp == 0
