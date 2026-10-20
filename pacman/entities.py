@@ -1,5 +1,12 @@
 from pacman.maze import Direction, try_move, free_direction
 from abc import ABC, abstractmethod
+from enum import Enum
+
+
+class GhostState(Enum):
+    NORMAL = 1
+    EDIBLE = 2
+    EATEN = 2
 
 
 class Entity(ABC):
@@ -74,3 +81,28 @@ class Player(Entity):
     def is_dead(self) -> bool:
         """Return True when the player has no life left."""
         return self.lives <= 0
+
+
+class Ghost(Entity):
+    """The ghost chasing the player"""
+
+    def __init__(self, x: int, y: int, grid: list[list[int]]) -> None:
+        super().__init__(x, y, grid)
+        state = GhostState.NORMAL
+
+    def new_level(self, x: int, y: int, grid: list[list[int]]) -> None:
+        self.grid = grid
+        self.spawn_x = x
+        self.spawn_y = y
+        self.respawn()
+
+    def move(self) -> None:
+        pass
+
+    def respawn(self) -> None:
+        self.x = self.spawn_x
+        self.y = self.spawn_y
+        self.current_direction = None
+
+    def position(self) -> tuple[int, int]:
+        return (self.x, self.y)
