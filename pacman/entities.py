@@ -1,20 +1,15 @@
 from pacman.maze import Direction, try_move, free_direction
+from abc import ABC, abstractmethod
 
 
-class Player:
-    """The player controlled Pac-man"""
-
-    def __init__(self, x: int, y: int, grid: list[list[int]], lives: int
-                 ) -> None:
+class Entity(ABC):
+    def __init__(self, x: int, y: int, grid: list[list[int]]) -> None:
         self.spawn_x = x
         self.spawn_y = y
         self.x = x
         self.y = y
         self.current_direction: Direction | None = None
-        self.next_direction: Direction | None = None
         self.grid = grid
-        self.lives = lives
-        self.max_lives = lives
 
     def new_level(self, x: int, y: int, grid: list[list[int]]) -> None:
         self.grid = grid
@@ -22,12 +17,33 @@ class Player:
         self.spawn_y = y
         self.respawn()
 
-    def set_direction(self, direction: Direction) -> None:
-        """Set the direction of pac-man"""
-        self.next_direction = direction
+    @abstractmethod
+    def move(self) -> None:
+        pass
+
+    @abstractmethod
+    def respawn(self) -> None:
+        self.x = self.spawn_x
+        self.y = self.spawn_y
+        self.current_direction = None
 
     def position(self) -> tuple[int, int]:
         return (self.x, self.y)
+
+
+class Player(Entity):
+    """The player controlled Pac-man"""
+
+    def __init__(self, x: int, y: int, grid: list[list[int]], lives: int
+                 ) -> None:
+        super().__init__(x, y, grid)
+        self.next_direction: Direction | None = None
+        self.lives = lives
+        self.max_lives = lives
+
+    def set_direction(self, direction: Direction) -> None:
+        """Set the direction of pac-man"""
+        self.next_direction = direction
 
     def move(self) -> None:
         """Check if the wanted direction is possible and move to it"""
@@ -46,9 +62,7 @@ class Player:
 
     def respawn(self) -> None:
         """Respawn after a death"""
-        self.x = self.spawn_x
-        self.y = self.spawn_y
-        self.current_direction = None
+        super().respawn()
         self.next_direction = None
 
     def lose_life(self) -> None:
