@@ -1,6 +1,7 @@
 from pacman.maze import Direction, try_move, free_direction
 from abc import ABC, abstractmethod
 from enum import Enum
+import random
 
 
 class GhostState(Enum):
@@ -28,7 +29,6 @@ class Entity(ABC):
     def move(self) -> None:
         pass
 
-    @abstractmethod
     def respawn(self) -> None:
         self.x = self.spawn_x
         self.y = self.spawn_y
@@ -88,21 +88,25 @@ class Ghost(Entity):
 
     def __init__(self, x: int, y: int, grid: list[list[int]]) -> None:
         super().__init__(x, y, grid)
-        state = GhostState.NORMAL
-
-    def new_level(self, x: int, y: int, grid: list[list[int]]) -> None:
-        self.grid = grid
-        self.spawn_x = x
-        self.spawn_y = y
-        self.respawn()
+        self.state = GhostState.NORMAL
+        self.rng = random.Random()
 
     def move(self) -> None:
-        pass
+        exits = free_direction(self.grid, self.x, self.y)
+        free = [direction for direction, possible in exits.items() if possible]
+        self.block_opposite(free)
+        self.current_direction = self.rng.choice(free)
+        self.x, self.y = try_move(self.grid, self.x, self.y,
+                                  self.current_direction)
+
+    def block_opposite(self, possible_way: list[Direction]) -> None:
+        if self.current_direction is not None:
+            x, y = self.current_direction.value
+            (x, y) = (-x, -y)
+            if len(possible_way) > 1:
+                if Direction((x, y)) in possible_way:
+                    possible_way.remove(Direction((x, y)))
 
     def respawn(self) -> None:
-        self.x = self.spawn_x
-        self.y = self.spawn_y
-        self.current_direction = None
-
-    def position(self) -> tuple[int, int]:
-        return (self.x, self.y)
+        super().respawn()
+        self.state = GhostState.NORMAL
