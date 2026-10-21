@@ -1,4 +1,5 @@
 from enum import Enum
+from collections import deque
 
 
 class Direction(Enum):
@@ -28,3 +29,32 @@ def try_move(grid: list[list[int]], x: int, y: int, direction: Direction
         return (x + dx, y + dy)
     else:
         return (x, y)
+
+
+def find_short_path(x: int, y: int, gx: int, gy: int,
+                    grid: list[list[int]]) -> Direction | None:
+    start = (x, y)
+    goal = (gx, gy)
+    if start == goal:
+        return None
+    prev: dict = {start: None}
+    queue = deque([start])
+    while queue:
+        x, y = queue.popleft()
+        if (x, y) == goal:
+            break
+        for direction, possible in free_direction(grid, x, y).items():
+            dx, dy = direction.value
+            nx, ny = x + dx, y + dy
+            if possible and (nx, ny) not in prev:
+                prev[(nx, ny)] = ((x, y), direction)
+                queue.append((nx, ny))
+    if goal not in prev:
+        return None
+    path = []
+    cur = goal
+    while prev[cur] is not None:
+        parent, direction = prev[cur]
+        path.append(direction)
+        cur = parent
+    return path[-1]

@@ -95,7 +95,11 @@ class Ghost(Entity):
         exits = free_direction(self.grid, self.x, self.y)
         free = [direction for direction, possible in exits.items() if possible]
         self.block_opposite(free)
-        self.current_direction = self.rng.choice(free)
+        if self.state is GhostState.EDIBLE:
+            self.current_direction = self.rng.choice(free)
+        else:
+            target_cell = self.target()
+            self.current_direction = #new method who calculate best direction with bfs
         self.x, self.y = try_move(self.grid, self.x, self.y,
                                   self.current_direction)
 
@@ -106,7 +110,11 @@ class Ghost(Entity):
             if len(possible_way) > 1:
                 if Direction((x, y)) in possible_way:
                     possible_way.remove(Direction((x, y)))
-
+    
     def respawn(self) -> None:
         super().respawn()
         self.state = GhostState.NORMAL
+    
+    @abstractmethod
+    def target(self) -> tuple[int, int]:
+        pass
