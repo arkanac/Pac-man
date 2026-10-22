@@ -1,4 +1,4 @@
-from pacman.maze import Direction, try_move, free_direction
+from pacman.maze import Direction, try_move, free_direction, find_short_path
 from abc import ABC, abstractmethod
 from enum import Enum
 import random
@@ -99,6 +99,8 @@ class Ghost(Entity):
         self.block_opposite(free)
         if self.state is GhostState.EDIBLE:
             self.current_direction = self.rng.choice(free)
+        elif self.state is GhostState.EATEN:
+            self.current_direction = self.eaten(free)
         else:
             target_cell = self.target()
             self.current_direction = self.choose_direction(free, target_cell)
@@ -123,6 +125,18 @@ class Ghost(Entity):
             return (nx - tx) ** 2 + (ny - ty) ** 2
 
         return min(free, key=distance)
+
+    def eaten(self, free: list[Direction]) -> Direction:
+        pos: tuple[int, int] = self.x, self.y
+        spawn: tuple[int, int] = self.spawn_x, self.spawn_y
+        if pos == spawn:
+            self.state = GhostState.NORMAL
+            target = self.target()
+            return self.choose_direction(free, target)
+        result = find_short_path(*pos, *spawn, self.grid)
+        if result is None or result not in free:
+            return self.choose_direction(free, spawn)
+        return result
 
     def respawn(self) -> None:
         super().respawn()
