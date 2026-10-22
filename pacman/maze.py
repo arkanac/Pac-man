@@ -7,6 +7,8 @@ class Direction(Enum):
     E = (1, 0)
     S = (0, 1)
     W = (-1, 0)
+    
+    Cell = tuple[int, int]
 
 
 def free_direction(grid: list[list[int]], x: int, y: int
@@ -38,7 +40,7 @@ def find_short_path(x: int, y: int, gx: int, gy: int,
     if start == goal:
         return None
     prev: dict = {start: None}
-    queue = deque([start])
+    prev: dict[Cell, tuple[Cell, Direction] | None] = {start: None}
     while queue:
         x, y = queue.popleft()
         if (x, y) == goal:

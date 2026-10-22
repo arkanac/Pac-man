@@ -86,8 +86,10 @@ class Player(Entity):
 class Ghost(Entity):
     """The ghost chasing the player"""
 
-    def __init__(self, x: int, y: int, grid: list[list[int]]) -> None:
+    def __init__(self, x: int, y: int, grid: list[list[int]],
+                 player: Player) -> None:
         super().__init__(x, y, grid)
+        self.player = player
         self.state = GhostState.NORMAL
         self.rng = random.Random()
 
@@ -99,7 +101,7 @@ class Ghost(Entity):
             self.current_direction = self.rng.choice(free)
         else:
             target_cell = self.target()
-            self.current_direction = #new method who calculate best direction with bfs
+            self.current_direction = self.choose_direction(free, target_cell)
         self.x, self.y = try_move(self.grid, self.x, self.y,
                                   self.current_direction)
 
@@ -110,11 +112,22 @@ class Ghost(Entity):
             if len(possible_way) > 1:
                 if Direction((x, y)) in possible_way:
                     possible_way.remove(Direction((x, y)))
-    
+
+    def choose_direction(self, free: list[Direction],
+                         target_cell: tuple[int, int]) -> Direction:
+        tx, ty = target_cell
+
+        def distance(direction: Direction) -> int:
+            dx, dy = direction.value
+            nx, ny = self.x + dx, self.y + dy
+            return (nx - tx) ** 2 + (ny - ty) ** 2
+
+        return min(free, key=distance)
+
     def respawn(self) -> None:
         super().respawn()
         self.state = GhostState.NORMAL
-    
+
     @abstractmethod
     def target(self) -> tuple[int, int]:
         pass
