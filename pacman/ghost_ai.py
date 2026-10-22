@@ -1,5 +1,6 @@
-from entities import Player, Ghost
+from pacman.entities import Player, Ghost
 from pacman.maze import find_short_path, Direction
+from pacman.level import Level
 
 
 class Blinky(Ghost):
@@ -52,3 +53,12 @@ class Clyde(Ghost):
         if distance > 64:
             return (px, py)
         return (self.spawn_x, self.spawn_y)
+
+
+def create_ghost(level: Level, player: Player) -> list[Ghost]:
+    p_spawn, b_spawn, c_spawn, i_spawn = level.ghost_spawns
+    blinky = Blinky(*b_spawn, level.grid, player)
+    pinky = Pinky(*p_spawn, level.grid, player)
+    inky = Inky(*i_spawn, level.grid, player, blinky)
+    clyde = Clyde(*c_spawn, level.grid, player)
+    return [blinky, pinky, inky, clyde]

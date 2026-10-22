@@ -1,14 +1,14 @@
 from enum import Enum
 from collections import deque
 
+Cell = tuple[int, int]
+
 
 class Direction(Enum):
     N = (0, -1)
     E = (1, 0)
     S = (0, 1)
     W = (-1, 0)
-    
-    Cell = tuple[int, int]
 
 
 def free_direction(grid: list[list[int]], x: int, y: int
@@ -39,8 +39,8 @@ def find_short_path(x: int, y: int, gx: int, gy: int,
     goal = (gx, gy)
     if start == goal:
         return None
-    prev: dict = {start: None}
     prev: dict[Cell, tuple[Cell, Direction] | None] = {start: None}
+    queue = deque([start])
     while queue:
         x, y = queue.popleft()
         if (x, y) == goal:
@@ -53,10 +53,13 @@ def find_short_path(x: int, y: int, gx: int, gy: int,
                 queue.append((nx, ny))
     if goal not in prev:
         return None
-    path = []
+    path: list[Direction] = []
     cur = goal
-    while prev[cur] is not None:
-        parent, direction = prev[cur]
+    while True:
+        step = prev[cur]
+        if step is None:
+            break
+        parent, direction = step
         path.append(direction)
         cur = parent
     return path[-1]
