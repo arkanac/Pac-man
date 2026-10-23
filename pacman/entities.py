@@ -1,7 +1,6 @@
 from pacman.maze import Direction, try_move, free_direction, find_short_path
 from abc import ABC, abstractmethod
 from enum import Enum
-import random
 
 
 class GhostState(Enum):
@@ -91,14 +90,18 @@ class Ghost(Entity):
         super().__init__(x, y, grid)
         self.player = player
         self.state = GhostState.NORMAL
-        self.rng = random.Random()
+        self.count = 0
 
     def move(self) -> None:
         exits = free_direction(self.grid, self.x, self.y)
         free = [direction for direction, possible in exits.items() if possible]
         self.block_opposite(free)
         if self.state is GhostState.EDIBLE:
-            self.current_direction = self.rng.choice(free)
+            self.count -= 1
+            if self.count <= 0:
+                self.state = GhostState.NORMAL
+            self.current_direction = self.choose_direction(free,
+                                                           self.fleeing())
         elif self.state is GhostState.EATEN:
             self.current_direction = self.eaten(free)
         else:
@@ -106,6 +109,12 @@ class Ghost(Entity):
             self.current_direction = self.choose_direction(free, target_cell)
         self.x, self.y = try_move(self.grid, self.x, self.y,
                                   self.current_direction)
+
+    def frighten(self, duration: int) -> None:
+        if self.state is GhostState.EATEN:
+            return None
+        self.count = duration
+        self.state = GhostState.EDIBLE
 
     def block_opposite(self, possible_way: list[Direction]) -> None:
         if self.current_direction is not None:
@@ -123,8 +132,12 @@ class Ghost(Entity):
             dx, dy = direction.value
             nx, ny = self.x + dx, self.y + dy
             return (nx - tx) ** 2 + (ny - ty) ** 2
-
         return min(free, key=distance)
+
+    def fleeing(self) -> tuple[int, int]:
+        px = self.player.x
+        py = self.player.y
+        return (2 * self.x - px, 2 * self.y - py)
 
     def eaten(self, free: list[Direction]) -> Direction:
         pos: tuple[int, int] = self.x, self.y
@@ -140,6 +153,7 @@ class Ghost(Entity):
 
     def respawn(self) -> None:
         super().respawn()
+        self.count = 0
         self.state = GhostState.NORMAL
 
     @abstractmethod
