@@ -1,3 +1,6 @@
+from pacman.config import GameConfig, LevelSpecs
+import random
+
 class Level:
     """The level played"""
 
@@ -22,3 +25,11 @@ class Level:
         self.pacgums.discard((x, y))
         self.ghost_spawns: list[tuple[int, int]] = [(0, 0), (w-1, 0),
                                                     (0, h-1), (w-1, h-1)]
+
+
+def build_level(config: GameConfig.game_specs, number: int) -> Level:
+    specs = LevelSpecs
+    width = specs.width
+    height = specs.height
+    seed = config.seed if number == 1 else 0
+    M
