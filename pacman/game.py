@@ -1,19 +1,29 @@
 from pacman.entities import Player, Ghost, GhostState
-from pacman.level import Level
-from pacman.config import Rules
+from pacman.config import GameConfig
 from pacman.ghost_ai import create_ghost
+from pacman.level import build_level
 
 
 class Game:
     """Apply the game rules: move the player, eat pacgums, keep the score."""
 
-    def __init__(self, level: Level, player: Player, rules: Rules) -> None:
+    def __init__(self, config: GameConfig) -> None:
         """Start a game on the given level with the given player and rules."""
-        self.player = player
-        self.level = level
+        self.config = config
+        self.rules = config.rules
+        self.current_level = 1
+        self.level = build_level(config, self.current_level)
+        self.player = Player(*self.level.player_spawn, self.level.grid,
+                             config.rules.lives)
         self.score: int = 0
-        self.rules = rules
-        self.ghosts: list[Ghost] = create_ghost(level, player)
+        self.ghosts: list[Ghost] = create_ghost(self.level, self.player)
+        self.current_level = 1
+
+    def next_level(self) -> None:
+        self.current_level += 1
+        self.level = build_level(self.config, self.current_level)
+        self.player.new_level(*self.level.player_spawn, self.level.grid)
+        self.ghosts = create_ghost(self.level, self.player)
 
     def turn(self) -> None:
         """Move the player one step and eat what is on its cell."""

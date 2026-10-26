@@ -1,5 +1,5 @@
 from pacman.config import GameConfig, LevelSpecs
-import random
+from mazegenerator import MazeGenerator
 
 class Level:
     """The level played"""
@@ -27,9 +27,15 @@ class Level:
                                                     (0, h-1), (w-1, h-1)]
 
 
-def build_level(config: GameConfig.game_specs, number: int) -> Level:
-    specs = LevelSpecs
+def build_level(config: GameConfig, number: int) -> Level:
+    index = min(number, len(config.game_specs)) - 1
+    specs = config.game_specs[index]
     width = specs.width
     height = specs.height
     seed = config.seed if number == 1 else 0
-    M
+    try:
+        grid = MazeGenerator(size=(width, height), perfect=False, seed=seed)
+    except Exception as e:
+        raise ValueError(f"Maze generation failed for level {number}:"
+                         f"{e}") from e
+    return Level(grid.maze)
