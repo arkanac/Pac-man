@@ -6,7 +6,7 @@ from enum import Enum
 class GhostState(Enum):
     NORMAL = 1
     EDIBLE = 2
-    EATEN = 2
+    EATEN = 3
 
 
 class Entity(ABC):
