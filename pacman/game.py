@@ -2,6 +2,7 @@ from pacman.entities import Player, Ghost, GhostState
 from pacman.config import GameConfig
 from pacman.ghost_ai import create_ghost
 from pacman.level import build_level
+from pacman.cheats import Cheat
 
 TURN_PER_SECOND = 8
 FRIGHTEN_TURN = 6 * TURN_PER_SECOND
@@ -23,6 +24,7 @@ class Game:
         self.ghosts: list[Ghost] = create_ghost(self.level, self.player)
         self.total_levels = max(MIN_LEVELS, len(self.config.game_specs))
         self.time_left = self.level.max_time * TURN_PER_SECOND
+        self.cheats = Cheat()
 
     def next_level(self) -> None:
         """Load the next level and reset the timer, player and ghosts."""
@@ -34,6 +36,9 @@ class Game:
 
     def turn(self) -> None:
         """Play one turn: move, eat, move ghosts, check collisions, tick."""
+        if self.cheats.always_edible:
+            for ghost in self.ghosts:
+                ghost.frighten(FRIGHTEN_TURN)
         self.player.move()
         coord = self.player.position()
         if coord in self.level.pacgums:
@@ -47,9 +52,11 @@ class Game:
         self.check_collision()
         for ghost in self.ghosts:
             if not self.player.is_dead():
-                ghost.move()
+                if not self.cheats.freeze:
+                    ghost.move()
                 self.check_collision()
-        self.time_left -= 1
+        if not self.cheats.freeze:
+            self.time_left -= 1
 
     def check_collision(self) -> None:
         """Resolve Pac-Man / ghost collisions according to ghost state."""
@@ -58,6 +65,8 @@ class Game:
             g_pos = ghost.position()
             if p_pos == g_pos:
                 if ghost.state == GhostState.NORMAL:
+                    if self.cheats.invincible:
+                        continue
                     self.player.lose_life()
                     for gh in self.ghosts:
                         gh.respawn()
