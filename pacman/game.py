@@ -34,11 +34,7 @@ class Game:
         self.player.new_level(*self.level.player_spawn, self.level.grid)
         self.ghosts = create_ghost(self.level, self.player)
 
-    def turn(self) -> None:
-        """Play one turn: move, eat, move ghosts, check collisions, tick."""
-        if self.cheats.always_edible:
-            for ghost in self.ghosts:
-                ghost.frighten(FRIGHTEN_TURN)
+    def _player_step(self) -> None:
         self.player.move()
         coord = self.player.position()
         if coord in self.level.pacgums:
@@ -50,6 +46,16 @@ class Game:
                 ghost.frighten(FRIGHTEN_TURN)
             self.score += self.rules.point_per_super_pacgum
         self.check_collision()
+
+    def turn(self) -> None:
+        """Play one turn: move, eat, move ghosts, check collisions, tick."""
+        if self.cheats.always_edible:
+            for ghost in self.ghosts:
+                ghost.frighten(FRIGHTEN_TURN)
+        self._player_step()
+        if self.cheats.speed_boost:
+            if not self.player.is_dead():
+                self._player_step()
         for ghost in self.ghosts:
             if not self.player.is_dead():
                 if not self.cheats.freeze:
@@ -84,6 +90,11 @@ class Game:
     def is_last_level(self) -> bool:
         """Return True if the current level is the last one."""
         return self.current_level >= self.total_levels
+
+    def skip_level(self) -> None:
+        """Cheat: empty the current level so it counts as won."""
+        self.level.pacgums.clear()
+        self.level.super_pacgums.clear()
 
     def time_up(self) -> bool:
         """Return True when the level timer has run out."""
