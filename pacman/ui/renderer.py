@@ -135,6 +135,23 @@ class PrototypeRendering():
         maze_grid = maze_gen.maze
         return maze_grid
 
+    def handle_keys(self) -> bool:
+        """For each key pressed, trigger a back_end event"""
+        events = mlx_wrapper.get_events()
+        for event in events:
+            key = mlx_wrapper.get_key_pressed(event)
+            if event.type == pygame.QUIT:
+                return False
+            if key == "KEY_W":
+                return True
+            if key == "KEY_A":
+                return True
+            if key == "KEY_S":
+                return True
+            if key == "KEY_D":
+                return True
+        return True
+
     def game_running(self):
         """Prototype to keep the window running until an event happens"""
         running = True
@@ -142,23 +159,7 @@ class PrototypeRendering():
         y0 = 10
         pacman = self.sp.pacman
         while running:
-            events = mlx_wrapper.get_events()
-            for event in events:
-                key = mlx_wrapper.get_key_pressed(event)
-                if event.type == pygame.QUIT:
-                    running = False
-                if key == "KEY_W":
-                    # move up
-                    y0 -= 50
-                if key == "KEY_A":
-                    # move left
-                    x0 -= 50
-                if key == "KEY_S":
-                    # move down
-                    y0 += 50
-                if key == "KEY_D":
-                    # move right
-                    x0 += 50
+            running = self.handle_keys()
             mlx_wrapper.blit_img(pacman, self.entities, (
                 x0 + self.engine.x_padding, y0 + self.engine.y_padding))
             mlx_wrapper.blit_img(self.entities, self.maze_img, (0, 0))
