@@ -1,4 +1,4 @@
-import mlx_wrapper
+from . import mlx_wrapper
 import pygame
 # from game import Game
 
@@ -15,13 +15,13 @@ class ProcessKeys:
             if event.type == pygame.QUIT:
                 return "QUIT"
             if key == "KEY_W":
-                return "UP"
+                return "NORTH"
             if key == "KEY_A":
-                return "LEFT"
+                return "EAST"
             if key == "KEY_S":
-                return "DOWN"
+                return "SOUTH"
             if key == "KEY_D":
-                return "RIGHT"
+                return "WEST"
 
     def process_key(self) -> None:
         pass
