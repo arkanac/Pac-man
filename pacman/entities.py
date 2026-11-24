@@ -106,6 +106,8 @@ class Ghost(Entity):
         self.player = player
         self.state = GhostState.NORMAL
         self.count = 0
+        self.x = x
+        self.y = y
 
     def move(self) -> None:
         """Pick a direction according to the state and move one cell.

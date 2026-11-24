@@ -3,7 +3,6 @@ from pacman.config import GameConfig
 from mazegenerator import MazeGenerator
 
 
-
 class Level:
     """A maze with its pacgums, super-pacgums, spawns and time limit."""
 
@@ -19,9 +18,9 @@ class Level:
             for x in range(0, w):
                 coord = (x, y)
                 if coord not in self.super_pacgums and grid[y][x] != 15:
-                    self.pacgums.add(coord)
-        x = w // 2
-        y = h // 2
+                    self.pacgums .add(coord)
+        x = (w // 2) - 1
+        y = (h // 2) - 1
         while grid[y][x] == 15:
             x += 1
         self.player_spawn = (x, y)
