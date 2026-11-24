@@ -1,5 +1,6 @@
-import mlx_wrapper
+from . import mlx_wrapper
 import pygame
+from ..entities import Direction
 # from game import Game
 
 
@@ -14,14 +15,16 @@ class ProcessKeys:
             key = mlx_wrapper.get_key_pressed(event)
             if event.type == pygame.QUIT:
                 return "QUIT"
-            if key == "KEY_W":
-                return "UP"
-            if key == "KEY_A":
-                return "LEFT"
-            if key == "KEY_S":
-                return "DOWN"
-            if key == "KEY_D":
-                return "RIGHT"
+            if key == "KEY_ESCAPE":
+                return "QUIT"
+            if key in ["KEY_W", "KEY_UP"]:
+                return Direction.N
+            if key in ["KEY_A", "KEY_LEFT"]:
+                return Direction.W
+            if key in ["KEY_S", "KEY_DOWN"]:
+                return Direction.S
+            if key in ["KEY_D", "KEY_RIGHT"]:
+                return Direction.E
 
     def process_key(self) -> None:
         pass

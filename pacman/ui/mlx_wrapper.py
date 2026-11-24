@@ -88,6 +88,11 @@ def get_padding() -> int:
 def _get_key_mapping() -> dict[int, str]:
     """Convert the key_mapping values from pygames names to mlx names"""
     return {
+        pygame.K_DOWN: "KEY_DOWN",
+        pygame.K_RIGHT: "KEY_RIGHT",
+        pygame.K_LEFT: "KEY_LEFT",
+        pygame.K_UP: "KEY_UP",
+        pygame.K_ESCAPE: "KEY_ESCAPE",
         pygame.K_w: "KEY_W",
         pygame.K_s: "KEY_S",
         pygame.K_a: "KEY_A",
