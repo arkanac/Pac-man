@@ -91,6 +91,8 @@ class Ghost(Entity):
         self.player = player
         self.state = GhostState.NORMAL
         self.count = 0
+        self.x = x
+        self.y = y
 
     def move(self) -> None:
         exits = free_direction(self.grid, self.x, self.y)
