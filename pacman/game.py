@@ -4,7 +4,7 @@ from pacman.ghost_ai import create_ghost
 from pacman.level import build_level
 from pacman.cheats import Cheat
 
-TURN_PER_SECOND = 8
+TURN_PER_SECOND = 5
 FRIGHTEN_TURN = 6 * TURN_PER_SECOND
 MIN_LEVELS = 10
 
