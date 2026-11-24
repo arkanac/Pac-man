@@ -3,7 +3,7 @@
 class MazeDrawing():
     def __init__(self, engine, maze_img):
         """Maze color, cell_size, line_thickness"""
-        self.edge_size = 50
+        self.edge_size = 100
         self.edge_color: int = 0x2121DE
         self.line_thickness = 6
         self.engine = engine
