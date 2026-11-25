@@ -3,7 +3,7 @@ from . import mlx_wrapper
 from . import draw_sprites
 from . import maze_draw
 from . import keys_to_back_end as k
-from pacman.game import Game
+from pacman.game import Game, GameState
 from pacman.entities import GhostState
 from pacman.config import parse_config
 from pacman.maze import Direction
@@ -69,6 +69,8 @@ class PrototypeRendering():
 
             # print(f"Before: {self.player.x}, {self.player.y}")
             self.game.turn()
+            if self.game.state is not GameState.PLAYING:
+                running = False
             # print(f"After: {self.player.x}, {self.player.y}")
 
             # draw pacgums
