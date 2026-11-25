@@ -35,7 +35,7 @@ def parse_config(filename: str = "config.json") -> GameConfig:
     except FileNotFoundError as e:
         raise FileNotFoundError(f"Could not open file: {e}") from e
     except Exception as e:
-        raise ValueError(f"Invalid JSON syntax in {filename}: {e}") from e
+        raise ValueError(f"Invalid JSON syntax in {filename}") from e
     try:
         config = GameConfig.model_validate(data)
     except ValueError as e:
