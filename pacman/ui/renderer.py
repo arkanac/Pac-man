@@ -6,6 +6,7 @@ from . import keys_to_back_end as k
 from pacman.game import Game
 from pacman.entities import GhostState
 from pacman.config import parse_config
+from pacman.maze import Direction
 import time
 
 
@@ -50,7 +51,7 @@ class PrototypeRendering():
         self.game = Game(parse_config("config.json"))
         self.turn = 0
         self.player = self.game.player
-        self.edge = 50
+        self.edge = 100
 
     def game_running(self):
         """Prototype to keep the window running until an event happens"""
@@ -80,7 +81,7 @@ class PrototypeRendering():
             self.hud()
 
             # draw entities onto the maze img
-            self.sp.spawn_sprite(self.entities, "pacman", (self.player.x*self.edge, self.player.y*self.edge))
+            self.draw_pacman()
             mlx_wrapper.blit_img(self.entities, self.maze_img, (0, 0))
 
             # refresh both the entities window and the main window
@@ -102,6 +103,16 @@ class PrototypeRendering():
 
         # quit the window
         mlx_wrapper.quit_window()
+
+    def draw_pacman(self):
+        if self.game.player.current_direction is Direction.S:
+            self.sp.spawn_pacman(self.entities, "pacman_down", 1, (self.player.x *self.edge, self.player.y*self.edge))
+        if self.game.player.current_direction is Direction.N:
+            self.sp.spawn_pacman(self.entities, "pacman_up", 1, (self.player.x *self.edge, self.player.y*self.edge))
+        if self.game.player.current_direction is Direction.E:
+            self.sp.spawn_pacman(self.entities, "pacman_right", 1, (self.player.x *self.edge, self.player.y*self.edge))
+        if self.game.player.current_direction is Direction.W:
+            self.sp.spawn_pacman(self.entities, "pacman_left", 1, (self.player.x *self.edge, self.player.y*self.edge))
 
     def draw_pacgum(self):
         pacgums = self.game.level.pacgums
