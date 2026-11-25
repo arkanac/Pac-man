@@ -35,7 +35,9 @@ def update_window() -> None:
 def load_sprite(path: Path) -> pygame.Surface:
     """Translating the png sprite into a pygame image"""
     try:
-        return pygame.image.load(path).convert_alpha()
+        picture = pygame.image.load(path).convert_alpha()
+        picture = pygame.transform.scale(picture, (50, 50))
+        return picture
     except FileNotFoundError as e:
         raise ViewError(e)
     except PermissionError as e:
