@@ -1,13 +1,12 @@
 import sys
-from pacman.ui.renderer import PrototypeRendering
+from pacman.app import run
 
 
 def main() -> None:
     if len(sys.argv) != 2:
         sys.exit("Usage: python3 pac-man.py <config.json>")
     try:
-        pr = PrototypeRendering(sys.argv[1])
-        pr.dummy_function_test()
+        run(sys.argv[1])
     except (FileNotFoundError, ValueError) as e:
         sys.exit(f"{e}")
 
