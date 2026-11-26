@@ -30,3 +30,4 @@ class Cheat:
         self.always_edible = False
         self.freeze = False
         self.invincible = False
+        self.speed_boost = False
