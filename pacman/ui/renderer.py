@@ -105,7 +105,8 @@ class PrototypeRendering():
             # end_time (time exec)
             end = time.time()
             # sleep for 1/60 seconds (for 60 fps)
-            time.sleep(1/60 - (end-start))
+            if end-start < 1/60:
+                time.sleep(1/60 - (end-start))
 
         # quit the window
         mlx_wrapper.quit_window()
