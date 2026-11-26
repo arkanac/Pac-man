@@ -20,6 +20,8 @@ class Entity(ABC):
         self.spawn_y = y
         self.x = x
         self.y = y
+        self.prev_x = x
+        self.prev_y = y
         self.current_direction: Direction | None = None
         self.grid = grid
 
@@ -39,6 +41,8 @@ class Entity(ABC):
         """Put the entity back on its spawn cell, with no direction."""
         self.x = self.spawn_x
         self.y = self.spawn_y
+        self.prev_x = self.spawn_x
+        self.prev_y = self.spawn_y
         self.current_direction = None
 
     def position(self) -> tuple[int, int]:
@@ -63,6 +67,8 @@ class Player(Entity):
 
     def move(self) -> None:
         """Turn to the wanted direction if possible, then move one cell."""
+        self.prev_x = self.x
+        self.prev_y = self.y
         if self.next_direction is not None:
             exits = free_direction(self.grid, self.x, self.y)
             if exits[self.next_direction]:
@@ -114,6 +120,8 @@ class Ghost(Entity):
 
         Edible ghosts move one turn out of two (half speed).
         """
+        self.prev_x = self.x
+        self.prev_y = self.y
         exits = free_direction(self.grid, self.x, self.y)
         free = [direction for direction, possible in exits.items() if possible]
         self.block_opposite(free)

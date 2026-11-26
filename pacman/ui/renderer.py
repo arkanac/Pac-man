@@ -4,9 +4,9 @@ from . import draw_sprites
 from . import maze_draw
 from . import keys_to_back_end as k
 from pacman.game import Game, GameState
-from pacman.entities import GhostState
+from pacman.entities import GhostState, Entity
 from pacman.maze import Direction
-import time
+import pygame
 
 
 class Renderer():
@@ -40,26 +40,34 @@ class PrototypeRendering():
     def __init__(self, game: Game) -> None:
         self.width = 3000
         self.height = 1900
-        self.engine = None
-        self.sp = None
-        self.entities = None
-        self.maze = None
-        self.window = None
-        self.maze_img = None
+        self.engine: Renderer
+        self.sp: draw_sprites.HandleSprite
+        self.entities: pygame.Surface
+        self.maze: maze_draw.MazeDrawing
+        self.window: pygame.Surface
+        self.maze_img: pygame.Surface
         self.game = game
         self.player = self.game.player
         self.edge = 100
 
+    def _screen_pos(self, entity: Entity, t: float) -> tuple[int, int]:
+        """Pixel position of an entity, sliding from its previous cell."""
+        x = entity.prev_x + (entity.x - entity.prev_x) * t
+        y = entity.prev_y + (entity.y - entity.prev_y) * t
+        return (int(x * self.edge), int(y * self.edge))
 
-    def draw_pacman(self):
-        if self.game.player.current_direction is Direction.S:
-            self.sp.spawn_pacman(self.entities, "pacman_down", 1, (self.player.x *self.edge, self.player.y*self.edge))
-        if self.game.player.current_direction is Direction.N:
-            self.sp.spawn_pacman(self.entities, "pacman_up", 1, (self.player.x *self.edge, self.player.y*self.edge))
-        if self.game.player.current_direction is Direction.E:
-            self.sp.spawn_pacman(self.entities, "pacman_right", 1, (self.player.x *self.edge, self.player.y*self.edge))
-        if self.game.player.current_direction is Direction.W:
-            self.sp.spawn_pacman(self.entities, "pacman_left", 1, (self.player.x *self.edge, self.player.y*self.edge))
+    def draw_pacman(self, t: float) -> None:
+        """Draw Pac-Man facing its direction, at its sliding position."""
+        sprites = {
+            Direction.N: "pacman_up",
+            Direction.S: "pacman_down",
+            Direction.E: "pacman_right",
+            Direction.W: "pacman_left",
+        }
+        direction = self.game.player.current_direction
+        name = sprites[direction] if direction else "pacman_right"
+        self.sp.spawn_pacman(self.entities, name, 1,
+                             self._screen_pos(self.game.player, t))
 
     def draw_pacgum(self):
         pacgums = self.game.level.pacgums
@@ -75,29 +83,29 @@ class PrototypeRendering():
             x, y = sp
             self.sp.spawn_sprite(self.entities, "super_pacgum", (x*self.edge, y*self.edge))
 
-    def draw_entities(self):
-        if self.game.ghosts[0].state == GhostState.NORMAL:
-            self.sp.spawn_sprite(self.entities, "pinky", (self.game.ghosts[0].x *self.edge, self.game.ghosts[0].y*self.edge))
-            self.sp.spawn_sprite(self.entities, "inky", (self.game.ghosts[1].x*self.edge, self.game.ghosts[1].y*self.edge))
-            self.sp.spawn_sprite(self.entities, "clyde", (self.game.ghosts[2].x *self.edge, self.game.ghosts[2].y*self.edge))
-            self.sp.spawn_sprite(self.entities, "blinky", (self.game.ghosts[3].x*self.edge, self.game.ghosts[3].y*self.edge))
-        if self.game.ghosts[0].state == GhostState.EDIBLE:
-            self.sp.spawn_sprite(self.entities, "blue", (self.game.ghosts[0].x *self.edge, self.game.ghosts[0].y*self.edge))
-            self.sp.spawn_sprite(self.entities, "blue", (self.game.ghosts[1].x*self.edge, self.game.ghosts[1].y*self.edge))
-            self.sp.spawn_sprite(self.entities, "blue", (self.game.ghosts[2].x *self.edge, self.game.ghosts[2].y*self.edge))
-            self.sp.spawn_sprite(self.entities, "blue", (self.game.ghosts[3].x*self.edge, self.game.ghosts[3].y*self.edge))
+    def draw_entities(self, t: float) -> None:
+        """Draw each ghost with its own sprite and state."""
+        for ghost in self.game.ghosts:
+            if ghost.state is GhostState.EATEN:
+                continue
+            if ghost.state is GhostState.EDIBLE:
+                name = "blue"
+            else:
+                name = type(ghost).__name__.lower()
+            self.sp.spawn_sprite(self.entities, name,
+                                 self._screen_pos(ghost, t))
 
     def hud(self):
         self.sp.write_nbr(self.entities, (0, 0), str(self.game.score))
 
-    def draw(self):
+    def draw(self, t: float):
         """Draw one frame of the game"""
         mlx_wrapper.clear_window(self.maze_img)
         self.draw_pacgum()
         self.draw_super_pacgums()
-        self.draw_entities()
+        self.draw_entities(t)
         self.hud()
-        self.draw_pacman()
+        self.draw_pacman(t)
         mlx_wrapper.blit_img(self.entities, self.maze_img, (0, 0))
         mlx_wrapper.clear_window(self.window)
         mlx_wrapper.clear_window(self.entities)
