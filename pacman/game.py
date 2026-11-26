@@ -3,10 +3,20 @@ from pacman.config import GameConfig
 from pacman.ghost_ai import create_ghost
 from pacman.level import build_level
 from pacman.cheats import Cheat
+from enum import Enum, unique
 
 TURN_PER_SECOND = 5
 FRIGHTEN_TURN = 6 * TURN_PER_SECOND
 MIN_LEVELS = 10
+
+ 
+@unique
+class GameState(Enum):
+    """The three possible states of the game."""
+
+    PLAYING = 1
+    GAME_OVER = 2
+    VICTORY = 3
 
 
 class Game:
@@ -25,6 +35,7 @@ class Game:
         self.total_levels = max(MIN_LEVELS, len(self.config.game_specs))
         self.time_left = self.level.max_time * TURN_PER_SECOND
         self.cheats = Cheat()
+        self.state = GameState.PLAYING
 
     def next_level(self) -> None:
         """Load the next level and reset the timer, player and ghosts."""
@@ -49,6 +60,8 @@ class Game:
 
     def turn(self) -> None:
         """Play one turn: move, eat, move ghosts, check collisions, tick."""
+        if self.state is not GameState.PLAYING:
+            return
         if self.cheats.always_edible:
             for ghost in self.ghosts:
                 ghost.frighten(FRIGHTEN_TURN)
@@ -63,6 +76,7 @@ class Game:
                 self.check_collision()
         if not self.cheats.freeze:
             self.time_left -= 1
+        self.check_game_state()
 
     def check_collision(self) -> None:
         """Resolve Pac-Man / ghost collisions according to ghost state."""
@@ -99,3 +113,19 @@ class Game:
     def time_up(self) -> bool:
         """Return True when the level timer has run out."""
         return self.time_left <= 0
+
+    def check_game_state(self) -> None:
+        """Update the game state: next level, victory or game over."""
+        if self.win():
+            if self.is_last_level():
+                self.state = GameState.VICTORY
+            else:
+                self.next_level()
+            return
+        if self.time_up():
+            self.player.lose_life()
+            for ghost in self.ghosts:
+                ghost.respawn()
+            self.time_left = self.level.max_time * TURN_PER_SECOND
+        if self.player.is_dead():
+            self.state = GameState.GAME_OVER

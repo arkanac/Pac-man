@@ -3,7 +3,7 @@ from . import mlx_wrapper
 from . import draw_sprites
 from . import maze_draw
 from . import keys_to_back_end as k
-from pacman.game import Game
+from pacman.game import Game, GameState
 from pacman.entities import GhostState
 from pacman.config import parse_config
 from pacman.maze import Direction
@@ -14,7 +14,7 @@ class Renderer():
     def __init__(self, width, height):
         """Useful variables for setting up the Visual Engine"""
         self.image = None
-        self.pixels: Any = None
+        self.pixels = None
         self.screen = None
         self.width = width
         self.height = height
@@ -38,7 +38,7 @@ class Renderer():
 
 
 class PrototypeRendering():
-    def __init__(self):
+    def __init__(self, config_path: str = "config.json") -> None:
         self.width = 3000
         self.height = 1900
         self.engine = None
@@ -48,7 +48,8 @@ class PrototypeRendering():
         self.window = None
         self.maze_img = None
         self.maze_file = None
-        self.game = Game(parse_config("config.json"))
+        self.config = parse_config(config_path)
+        self.game = Game(self.config)
         self.turn = 0
         self.player = self.game.player
         self.edge = 100
@@ -68,6 +69,8 @@ class PrototypeRendering():
 
             # print(f"Before: {self.player.x}, {self.player.y}")
             self.game.turn()
+            if self.game.state is not GameState.PLAYING:
+                running = False
             # print(f"After: {self.player.x}, {self.player.y}")
 
             # draw pacgums
@@ -158,7 +161,3 @@ class PrototypeRendering():
         self.entities = mlx_wrapper.new_image(
             self.engine.width, self.engine.height)
         self.game_running()
-
-
-pr = PrototypeRendering()
-pr.dummy_function_test()
