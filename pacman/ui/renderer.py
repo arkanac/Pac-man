@@ -5,7 +5,6 @@ from . import maze_draw
 from . import keys_to_back_end as k
 from pacman.game import Game, GameState
 from pacman.entities import GhostState
-from pacman.config import parse_config
 from pacman.maze import Direction
 import time
 
@@ -38,7 +37,7 @@ class Renderer():
 
 
 class PrototypeRendering():
-    def __init__(self, config_path: str = "config.json") -> None:
+    def __init__(self, game: Game) -> None:
         self.width = 3000
         self.height = 1900
         self.engine = None
@@ -47,68 +46,10 @@ class PrototypeRendering():
         self.maze = None
         self.window = None
         self.maze_img = None
-        self.maze_file = None
-        self.config = parse_config(config_path)
-        self.game = Game(self.config)
-        self.turn = 0
+        self.game = game
         self.player = self.game.player
         self.edge = 100
 
-    def game_running(self):
-        """Prototype to keep the window running until an event happens"""
-        running = True
-        process_keys = k.ProcessKeys()
-        while running:
-            # init time
-            start = time.time()
-            # process input
-            action = process_keys.handle_keys()
-            if action == "QUIT":
-                running = False
-            else:
-                self.player.next_direction = action
-
-            # print(f"Before: {self.player.x}, {self.player.y}")
-            self.game.turn()
-            if self.game.state is not GameState.PLAYING:
-                running = False
-            # print(f"After: {self.player.x}, {self.player.y}")
-
-            # draw pacgums
-            self.draw_pacgum()
-            self.draw_super_pacgums()
-
-            # draws entities
-            self.draw_entities()
-
-            # draw hud
-            self.hud()
-
-            # draw entities onto the maze img
-            self.draw_pacman()
-            mlx_wrapper.blit_img(self.entities, self.maze_img, (0, 0))
-
-            # refresh both the entities window and the main window
-            mlx_wrapper.clear_window(self.window)
-            mlx_wrapper.clear_window(self.entities)
-
-            # draw the maze onto the window
-            self.maze.draw_maze(self.maze_file)
-            self.engine.pixels = None
-
-            # blit the maze onto the window
-            mlx_wrapper.blit_img(self.maze_img, self.window, (0, 0))
-
-            # push the modifications to the surface
-            mlx_wrapper.update_window()
-
-            # end_time (time exec)
-            end = time.time()
-            # sleep for 1/60 seconds (for 60 fps)
-            time.sleep(1/60 - (end-start))
-
-        # quit the window
-        mlx_wrapper.quit_window()
 
     def draw_pacman(self):
         if self.game.player.current_direction is Direction.S:
@@ -149,8 +90,24 @@ class PrototypeRendering():
     def hud(self):
         self.sp.write_nbr(self.entities, (0, 0), str(self.game.score))
 
-    def dummy_function_test(self):
-        """Calls the Renderer and the MazeDrawing"""
+    def draw(self):
+        """Draw one frame of the game"""
+        mlx_wrapper.clear_window(self.maze_img)
+        self.draw_pacgum()
+        self.draw_super_pacgums()
+        self.draw_entities()
+        self.hud()
+        self.draw_pacman()
+        mlx_wrapper.blit_img(self.entities, self.maze_img, (0, 0))
+        mlx_wrapper.clear_window(self.window)
+        mlx_wrapper.clear_window(self.entities)
+        self.maze.draw_maze(self.game.level.grid)
+        self.engine.pixels = None
+        mlx_wrapper.blit_img(self.maze_img, self.window, (0, 0))
+        mlx_wrapper.update_window()
+
+    def setup(self):
+        """Create the window, images and sprites"""
         mlx_wrapper.initialisation()
         self.window = mlx_wrapper.new_window(self.width, self.height)
         self.maze_img = mlx_wrapper.new_image(self.width, self.height)
@@ -159,8 +116,7 @@ class PrototypeRendering():
         self.sp = draw_sprites.HandleSprite(
             self.engine.x_padding, self.engine.y_padding)
         self.maze = maze_draw.MazeDrawing(self.engine, self.maze_img)
-        self.maze.draw_maze(self.maze_file)
+        self.maze.draw_maze(self.game.level.grid)
         self.engine.pixels = None
         self.entities = mlx_wrapper.new_image(
             self.engine.width, self.engine.height)
-        self.game_running()
