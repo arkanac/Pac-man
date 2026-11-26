@@ -59,7 +59,8 @@ class PrototypeRendering():
         running = True
         process_keys = k.ProcessKeys()
         while running:
-
+            # init time
+            start = time.time()
             # process input
             action = process_keys.handle_keys()
             if action == "QUIT":
@@ -101,8 +102,10 @@ class PrototypeRendering():
             # push the modifications to the surface
             mlx_wrapper.update_window()
 
+            # end_time (time exec)
+            end = time.time()
             # sleep for 1/60 seconds (for 60 fps)
-            time.sleep(1/5)
+            time.sleep(1/60 - (end-start))
 
         # quit the window
         mlx_wrapper.quit_window()
