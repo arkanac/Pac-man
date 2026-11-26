@@ -5,7 +5,7 @@ from pacman.level import build_level
 from pacman.cheats import Cheat
 from enum import Enum, unique
 
-TURN_PER_SECOND = 5
+TURN_PER_SECOND = 1
 FRIGHTEN_TURN = 6 * TURN_PER_SECOND
 MIN_LEVELS = 10
 

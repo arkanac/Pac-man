@@ -31,9 +31,10 @@ def run(config_path: str) -> None:
         while accumulator >= turn_duration and running:
             accumulator -= turn_duration
             game.turn()
+            print(round(time.perf_counter(), 1))
             if game.state is not GameState.PLAYING:
                 running = False
-        renderer.draw()
+        renderer.draw(accumulator / turn_duration)
         elapsed = time.perf_counter() - start
         if elapsed < frame_duration:
             time.sleep(frame_duration - elapsed)
