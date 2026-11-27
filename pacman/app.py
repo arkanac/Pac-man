@@ -7,6 +7,25 @@ from .ui.keys_to_back_end import ProcessKeys
 from .ui.mlx_wrapper import quit_window
 
 
+def handle_cheat(game: Game, action: str) -> None:
+    """Apply a cheat action; only TOGGLE_CHEAT works when cheats are off."""
+    if action == "TOGGLE_CHEAT":
+        game.cheats.toggle_cheat()
+        return
+    if not game.cheats.cheat_enabled:
+        return
+    if action == "INVINCIBLE":
+        game.cheats.toggle_invincible()
+    if action == "FREEZE":
+        game.cheats.toggle_freeze()
+    if action == "ALWAYS_EDIBLE":
+        game.cheats.toggle_always_edible()
+    if action == "SKIP_LEVEL":
+        game.skip_level()
+    if action == "EXTRA_LIFE":
+        game.player.add_life()
+
+
 def run(config_path: str) -> None:
     """Run  the game loop"""
     config = parse_config(config_path)
@@ -28,10 +47,11 @@ def run(config_path: str) -> None:
             running = False
         elif isinstance(action, Direction):
             game.player.set_direction(action)
+        elif action is not None:
+            handle_cheat(game, action)
         while accumulator >= turn_duration and running:
             accumulator -= turn_duration
             game.turn()
-            print(round(time.perf_counter(), 1))
             if game.state is not GameState.PLAYING:
                 running = False
         renderer.draw(accumulator / turn_duration)

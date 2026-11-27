@@ -5,7 +5,7 @@ from pacman.level import build_level
 from pacman.cheats import Cheat
 from enum import Enum, unique
 
-TURN_PER_SECOND = 1
+TURN_PER_SECOND = 4
 FRIGHTEN_TURN = 6 * TURN_PER_SECOND
 MIN_LEVELS = 10
 
@@ -60,20 +60,19 @@ class Game:
 
     def turn(self) -> None:
         """Play one turn: move, eat, move ghosts, check collisions, tick."""
+        
         if self.state is not GameState.PLAYING:
             return
-        if self.cheats.always_edible:
-            for ghost in self.ghosts:
-                ghost.frighten(FRIGHTEN_TURN)
+        self._apply_always_edible()
         self._player_step()
-        if self.cheats.speed_boost:
-            if not self.player.is_dead():
-                self._player_step()
         for ghost in self.ghosts:
             if not self.player.is_dead():
-                if not self.cheats.freeze:
+                if self.cheats.freeze:
+                    ghost.prev_position()
+                else:
                     ghost.move()
                 self.check_collision()
+        self._apply_always_edible()
         if not self.cheats.freeze:
             self.time_left -= 1
         self.check_game_state()
@@ -129,3 +128,10 @@ class Game:
             self.time_left = self.level.max_time * TURN_PER_SECOND
         if self.player.is_dead():
             self.state = GameState.GAME_OVER
+
+    def _apply_always_edible(self) -> None:
+        """Cheat: keep every ghost edible."""
+        if self.cheats.always_edible:
+            for ghost in self.ghosts:
+                if ghost.count <= 2:
+                    ghost.frighten(FRIGHTEN_TURN)

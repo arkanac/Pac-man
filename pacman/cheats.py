@@ -5,7 +5,6 @@ class Cheat:
         self.invincible = False
         self.freeze = False
         self.always_edible = False
-        self.speed_boost = False
         self.cheat_enabled = False
 
     def toggle_invincible(self) -> None:
@@ -20,14 +19,9 @@ class Cheat:
         """Turn on or off the cheat that keeps ghosts edible."""
         self.always_edible = not self.always_edible
 
-    def toggle_speed_boost(self) -> None:
-        """Turn on or off the cheat that changes Pac-man speed."""
-        self.speed_boost = not self.speed_boost
-
     def toggle_cheat(self) -> None:
         """Switch cheat mode on or off and reset every cheat."""
         self.cheat_enabled = not self.cheat_enabled
         self.always_edible = False
         self.freeze = False
         self.invincible = False
-        self.speed_boost = False
