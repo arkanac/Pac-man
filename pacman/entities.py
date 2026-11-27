@@ -49,6 +49,10 @@ class Entity(ABC):
         """Return the current (x, y) cell."""
         return (self.x, self.y)
 
+    def prev_position(self) -> None:
+        self.prev_x = self.x
+        self.prev_y = self.y
+
 
 class Player(Entity):
     """The player-controlled Pac-Man."""
@@ -67,8 +71,7 @@ class Player(Entity):
 
     def move(self) -> None:
         """Turn to the wanted direction if possible, then move one cell."""
-        self.prev_x = self.x
-        self.prev_y = self.y
+        self.prev_position()
         if self.next_direction is not None:
             exits = free_direction(self.grid, self.x, self.y)
             if exits[self.next_direction]:
@@ -120,8 +123,7 @@ class Ghost(Entity):
 
         Edible ghosts move one turn out of two (half speed).
         """
-        self.prev_x = self.x
-        self.prev_y = self.y
+        self.prev_position()
         exits = free_direction(self.grid, self.x, self.y)
         free = [direction for direction, possible in exits.items() if possible]
         self.block_opposite(free)
@@ -181,6 +183,7 @@ class Ghost(Entity):
         spawn: tuple[int, int] = self.spawn_x, self.spawn_y
         if pos == spawn:
             self.state = GhostState.NORMAL
+            self.count = 0
             target = self.target()
             return self.choose_direction(free, target)
         result = find_short_path(*pos, *spawn, self.grid)

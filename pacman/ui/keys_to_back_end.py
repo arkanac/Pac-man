@@ -2,13 +2,14 @@ from . import mlx_wrapper
 import pygame
 from ..entities import Direction
 # from game import Game
+from typing import Any
 
 
 class ProcessKeys:
     def __init__(self):
         pass
 
-    def handle_keys(self) -> str:
+    def handle_keys(self) -> Any:
         """For each key pressed, trigger a back_end event"""
         events = mlx_wrapper.get_events()
         for event in events:
@@ -25,6 +26,18 @@ class ProcessKeys:
                 return Direction.S
             if key in ["KEY_D", "KEY_RIGHT"]:
                 return Direction.E
+            if key == "KEY_C":
+                return "TOGGLE_CHEAT"
+            if key == "KEY_1":
+                return "INVINCIBLE"
+            if key == "KEY_2":
+                return "FREEZE"
+            if key == "KEY_3":
+                return "ALWAYS_EDIBLE"
+            if key == "KEY_4":
+                return "SKIP_LEVEL"
+            if key == "KEY_5":
+                return "EXTRA_LIFE"
 
     def process_key(self) -> None:
         pass
