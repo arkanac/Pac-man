@@ -19,7 +19,6 @@ class Cheat:
         """Turn on or off the cheat that keeps ghosts edible."""
         self.always_edible = not self.always_edible
 
-
     def toggle_cheat(self) -> None:
         """Switch cheat mode on or off and reset every cheat."""
         self.cheat_enabled = not self.cheat_enabled
